@@ -26,7 +26,7 @@ rule gg_ots:
     GG = Refdir + "/gg_13_8_otus.tar.gz",
   shell:
     """
-    wget -c http://210.75.224.110/db/GreenGenes/gg_13_8_otus.tar.gz -o {output.GG}
+    wget -c fttp://greengenes.microbio.me/db/GreenGenes/gg_13_8_otus.tar.gz -o {output.GG}
     tar -zxvf {output.GG}
     """
     
