@@ -1,0 +1,131 @@
+import io
+import os
+import pandas as pd
+import pathlib
+from snakemake.exceptions import print_exception, WorkflowError
+import glob
+
+
+#If you are first time to use QIIME2, you need to prepare references sequences and taxonomy file
+
+Refdir = "/path/2/all/reference/dir"
+
+rule all:
+  input:
+    Refdir + "/gg_13_8_otus.tar.gz",
+    Refdir + "/gg_13_8_otus/rep_set/" + "99_otus.qza",
+    Refdir + "/gg_13_8_otus/" + "ref-taxonomy.qza",
+    Refdir + "/gg_13_8_otus/" + "classifier_gg_13_8_99.qza",
+    Refdir + "/gg_13_8_otus/" + "ref-seqs_V2-V4.qza",
+    Refdir + "/gg_13_8_otus/" + "ref-seqs_V5-V.qza",    
+    Refdir + "/gg_13_8_otus/" + "classifier_gg_13_8_99_V2-V4.qza",
+    Refdir + "/gg_13_8_otus/" + "classifier_gg_13_8_99_V5-V7.qza",
+
+rule gg_ots:
+  output: 
+    GG = Refdir + "/gg_13_8_otus.tar.gz",
+  shell:
+    """
+    wget -c http://210.75.224.110/db/GreenGenes/gg_13_8_otus.tar.gz -o {output.GG}
+    tar -zxvf {output.GG}
+    """
+    
+
+rule rep_seqs_prepare:
+  input:
+    rep_seqs = Refdir + "/gg_13_8_otus/rep_set/" + "99_otus.fasta",
+  output:
+    qiime2_qza = Refdir + "/gg_13_8_otus/rep_set/" + "99_otus.qza"
+  shell:
+    """
+    qiime tools import \
+	  --type 'FeatureData[Sequence]' \
+	  --input-path {input} \
+	  --output-path {output}
+
+    """
+
+
+
+rule taxa_prepare:
+  input:
+    taxa = Refdir + "/gg_13_8_otus/taxonomy/" + "99_otu_taxonomy.txt",
+  output:
+    qiime2_ref_taxa = Refdir + "/gg_13_8_otus/" + "ref-taxonomy.qza"
+  shell:
+     """
+    qiime tools import \
+	  --type 'FeatureData[Taxonomy]' \
+	  --input-format HeaderlessTSVTaxonomyFormat \
+	  --input-path {input} \
+	  --output-path {output}
+
+     """
+
+rule classifier_prepare:
+  input:
+    rep_seqs = rules.rep_seqs_prepare.output,
+    tax = rules.taxa_prepare.output,
+  output:
+    clf = Refdir + "/gg_13_8_otus/" + "classifier_gg_13_8_99.qza",
+  shell:
+    """
+    qiime feature-classifier fit-classifier-naive-bayes \
+	  --i-reference-reads {input.repseqs} \
+	  --i-reference-taxonomy {input.tax} \
+	  --o-classifier {output}
+
+    """
+
+#routine Greengenes 13_8 99% OTUs from 341F CCTACGGGNGGCWGCAG/805 R GACTACHVGGGTATCTAATCC region of sequences
+#Or 799F AACMGGATTAGATACCCKG  1193R ACGTCATCCCCACCTTCC
+rule extract_region:
+  input:
+    rules.rep_seqs_prepare.output,
+  output:
+   ref_seq1 = Refdir + "/gg_13_8_otus/" + "ref-seqs_V2-V4.qza",
+   ref_seq2 = Refdir + "/gg_13_8_otus/" + "ref-seqs_V5-V.qza",
+  params:
+    ForwordP1 = "CCTACGGGNGGCWGCAG",
+    ReverseP2 = "GACTACHVGGGTATCTAATCC",
+    ForwordP1 = "AACMGGATTAGATACCCKG",
+    ReverseP2 = "ACGTCATCCCCACCTTCC ",
+  shell:
+    """
+    qiime feature-classifier extract-reads \
+	  --i-sequences {input} \
+	  --p-f-primer {params.ForwordP1} \
+	  --p-r-primer {paramas.ReversP1} \
+	  --o-reads {output.ref_seq1}
+
+    qiime feature-classifier extract-reads \
+          --i-sequences {input} \
+          --p-f-primer {params.ForwordP2} \
+          --p-r-primer {paramas.ReversP2} \
+          --o-reads {output.ref_seq2}
+    """
+
+
+rule extract_region_classifier:
+  input:
+    seq1 = rules.extract_region.output.ref_seq1,
+    seq2 = rules.extract_region.output.ref_seq2,
+    taxa = rules.taxa_prepare.output,
+  output:
+    V24 = Refdir + "/gg_13_8_otus/" + "classifier_gg_13_8_99_V2-V4.qza",
+    V57 = Refdir + "/gg_13_8_otus/" + "classifier_gg_13_8_99_V5-V7.qza",
+  shell:
+    """
+    qiime feature-classifier fit-classifier-naive-bayes \
+	  --i-reference-reads {input.seq1} \
+	  --i-reference-taxonomy {input.taxa} \
+	  --o-classifier {output.V24}
+    qiime feature-classifier fit-classifier-naive-bayes \
+          --i-reference-reads {input.seq2} \
+          --i-reference-taxonomy {input.taxa} \
+          --o-classifier {output.V57}
+
+    """
+
+
+
