@@ -1,0 +1,26 @@
+Key Features of the Nextflow Pipeline
+
+Module Management:
+Each process includes a module directive to load the required environment module (e.g., module fastqc/0.11.9).
+Modules are unloaded automatically after the process completes.
+Processes:
+Each step of the pipeline is defined as a separate process, making the workflow modular and reusable.
+Inputs and outputs are explicitly declared, ensuring data dependencies are clear.
+Workflow:
+The workflow block defines the order of execution for the processes.
+Outputs from one process are passed as inputs to the next.
+Parallelization:
+Nextflow automatically parallelizes tasks where possible, improving efficiency.
+Publishing Results:
+The publishDir directive is used to copy final results to a specified output directory.
+Parameterization:
+Parameters like input_fastq, reference_genome, and output_dir are defined at the top of the script, making the pipeline flexible and easy to configure.
+Running the Nextflow Pipeline
+
+Save the script to a file (e.g., bioinformatics_pipeline.nf).
+Ensure Nextflow is installed and environment modules are configured on your system.
+Run the pipeline using the following command:
+'''
+nextflow run bioinformatics_pipeline.nf --input_fastq input.fastq.gz --reference_genome reference_genome.fa --output_dir results
+''''
+

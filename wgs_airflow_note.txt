@@ -1,0 +1,16 @@
+Explanation of Changes
+
+Module Management:
+Each task now includes module load and module unload commands to manage the computing environment.
+For example, module load fastqc/0.11.9 loads the FastQC module before running the fastqc command, and module unload fastqc/0.11.9 unloads it afterward.
+
+Environment Variables:
+Some bioinformatics tools (e.g., Picard, Trimmomatic) use environment variables like $TRIMMOMATIC_HOME or $PICARD_HOME to locate their JAR files. Ensure these variables are set correctly in your environment.
+
+Tool Versions:
+The versions of the tools (e.g., fastqc/0.11.9, gatk/4.2.0.0) are specified in the module load commands. Update these versions to match the ones available in your environment.
+
+Task Dependencies:
+The task dependencies remain the same, ensuring the pipeline runs in the correct order.
+
+

@@ -1,0 +1,97 @@
+# Define the path to the input files and reference genome
+configfile: "config/config.yaml"
+
+# Load configuration parameters
+input_fastq = config["input_fastq"]
+reference_genome = config["reference_genome"]
+output_dir = config["output_dir"]
+
+# Define the modules to load for each tool
+modules = {
+    "fastqc": "fastqc/0.11.9",
+    "trimmomatic": "trimmomatic/0.39",
+    "bwa": "bwa/0.7.17",
+    "samtools": "samtools/1.12",
+    "picard": "picard/2.25.0",
+    "gatk": "gatk/4.2.0.0",
+    "htslib": "htslib/1.12",
+}
+
+
+rule all:
+    input:
+        expand("results/{{sample}}/annotated_variants.vcf.gz", sample=get_samples())
+
+def get_samples():
+    import glob
+    return [f.split('/')[-1].split('_')[2] for f in glob.glob("fastq/*.fastq.gz")]
+
+rule fastqc:
+    input:
+        "fastq/{sample}_R1.fastq.gz"
+    output:
+        "results/{sample}/fastqc_report.html"
+    shell:
+        "module load fastqc/1.1.0 && fastqc {input} -o results/{wildcards.sample} && module unload fastqc/1.1.0"
+
+rule trimming:
+    input:
+        R1="fastq/{sample}_R1.fastq.gz",
+        R2="fastq/{sample}_R2.fastq.gz"
+    output:
+        R1_trimmed="results/{sample}/{sample}_trimmed_R1.fastq.gz",
+        R2_trimmed="results/{sample}/{sample}_trimmed_R2.fastq.gz"
+    shell:
+        "module load trimmomatic/0.39 && trimmomatic PE {input.R1} {input.R2} {output.R1_trimmed} /dev/null {output.R2_trimmed} /dev/null SLIDINGWINDOW:4:20 MINLEN:50 && module unload trimmomatic/0.39"
+
+rule alignment:
+    input:
+        R1_trimmed="results/{sample}/{sample}_trimmed_R1.fastq.gz",
+        R2_trimmed="results/{sample}/{sample}_trimmed_R2.fastq.gz"
+    output:
+        "results/{sample}/aligned_reads.bam"
+    shell:
+        "module load bwa/0.7.17 && bwa mem reference.fasta {input.R1_trimmed} {input.R2_trimmed} | samtools view -Sb - > {output} && module unload bwa/0.7.17"
+
+rule sorting:
+    input:
+        "results/{sample}/aligned_reads.bam"
+    output:
+        "results/{sample}/sorted_reads.bam"
+    shell:
+        "module load samtools/1.15 && samtools sort {input} -o {output} && module unload samtools/1.15"
+
+rule mark_duplicates:
+    input:
+        "results/{sample}/sorted_reads.bam"
+    output:
+        "results/{sample}/dedup_reads.bam"
+    shell:
+        "module load picard/2.26.10 && picard MarkDuplicates I={input} O={output} M=marked_dup_metrics.txt REMOVE_DUPLICATES=true && module unload picard/2.26.10"
+
+rule base_recalibration:
+    input:
+        bam="results/{sample}/dedup_reads.bam",
+        reference="reference.fasta",
+        known_sites="known_sites.vcf"
+    output:
+        "results/{sample}/recalibrated_reads.bam"
+    shell:
+        "module load gatk/4.2.0.0 && gatk BaseRecalibrator -I {input.bam} -R {input.reference} --known-sites {input.known_sites} -O recal_data.table && gatk ApplyBQSR -R {input.reference} -I {input.bam} --bqsr-recal-file recal_data.table -O {output} && module unload gatk/4.2.0.0"
+
+rule variant_calling:
+    input:
+        "results/{sample}/recalibrated_reads.bam"
+    output:
+        "results/{sample}/output_variants.vcf.gz"
+    shell:
+        "module load gatk/4.2.0.0 && gatk HaplotypeCaller -R reference.fasta -I {input} -O {output} && module unload gatk/4.2.0.0"
+
+rule annotation:
+    input:
+        "results/{sample}/output_variants.vcf.gz"
+    output:
+        "results/{sample}/annotated_variants.vcf.gz"
+    shell:
+        "module load vep/104 && vep -i {input} -o {output} --cache --everything && module unload vep/104"
+

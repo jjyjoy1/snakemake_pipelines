@@ -1,0 +1,98 @@
+# Snakefile for QIIME2 Target Amplicon Analysis Pipeline
+
+# Define output paths for the final desired artifacts
+rule all:
+    input:
+        "qiime2_results/demux/summarize_demux.qzv",
+        "qiime2_results/dada2/feature_table.qza",
+        "qiime2_results/dada2/representative_sequences.qza",
+        "qiime2_results/taxonomy/taxonomy.qza",
+        "qiime2_results/taxonomy/taxonomy_barplot.qzv"
+
+# 1. Import raw sequence data using a manifest file.
+rule import_data:
+    input:
+        manifest="manifest.csv"
+    output:
+        demux="qiime2_results/demux/imported_sequences.qza"
+    shell:
+        """
+        qiime tools import \
+          --type 'SampleData[SequencesWithQuality]' \
+          --input-path {input.manifest} \
+          --output-path {output.demux} \
+          --input-format SingleEndFastqManifestPhred33V2
+        """
+
+# 2. Generate a visualization summary of the demultiplexed sequences.
+rule demux_summarize:
+    input:
+        demux="qiime2_results/demux/imported_sequences.qza"
+    output:
+        demux_viz="qiime2_results/demux/summarize_demux.qzv"
+    shell:
+        """
+        qiime demux summarize \
+          --i-data {input.demux} \
+          --o-visualization {output.demux_viz}
+        """
+
+# 3. Denoise sequences using DADA2.
+rule dada2_denoise:
+    input:
+        demux="qiime2_results/demux/imported_sequences.qza"
+    output:
+        feature_table="qiime2_results/dada2/feature_table.qza",
+        rep_seqs="qiime2_results/dada2/representative_sequences.qza",
+        denoising_stats="qiime2_results/dada2/denoising_stats.qza"
+    params:
+        # Adjust 'trunc_len' based on your read quality profiles.
+        trunc_len=150
+    shell:
+        """
+        qiime dada2 denoise-single \
+          --i-demultiplexed-seqs {input.demux} \
+          --p-trim-left 0 \
+          --p-trunc-len {params.trunc_len} \
+          --o-table {output.feature_table} \
+          --o-representative-sequences {output.rep_seqs} \
+          --o-denoising-stats {output.denoising_stats}
+        """
+
+# 4. Assign taxonomy to the representative sequences.
+rule assign_taxonomy:
+    input:
+        rep_seqs="qiime2_results/dada2/representative_sequences.qza"
+    output:
+        taxonomy="qiime2_results/taxonomy/taxonomy.qza"
+    params:
+        classifier="classifier.qza"  # Pre-trained classifier (e.g., SILVA, Greengenes)
+    shell:
+        """
+        qiime feature-classifier classify-sklearn \
+          --i-classifier {params.classifier} \
+          --i-reads {input.rep_seqs} \
+          --o-classification {output.taxonomy}
+        """
+
+# 5. Create a taxonomy barplot visualization.
+rule tax_barplot:
+    input:
+        table="qiime2_results/dada2/feature_table.qza",
+        taxonomy="qiime2_results/taxonomy/taxonomy.qza",
+        metadata="sample-metadata.tsv"
+    output:
+        barplot="qiime2_results/taxonomy/taxonomy_barplot.qzv"
+    shell:
+        """
+        qiime taxa barplot \
+          --i-table {input.table} \
+          --i-taxonomy {input.taxonomy} \
+          --m-metadata-file {input.metadata} \
+          --o-visualization {output.barplot}
+        """
+
+
+
+
+
