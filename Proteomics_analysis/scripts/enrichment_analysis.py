@@ -8,7 +8,7 @@ This script performs:
 3. Visualization of enrichment results
 4. Export of results in various formats
 
-Author: Claude
+Author: Jiyang Jiang
 Date: March 11, 2025
 """
 

@@ -1,5 +1,5 @@
 # Snakemake workflow for proteomics data analysis
-# Author: Claude
+# Author: Jiyang Jiang
 # Date: March 11, 2025
 
 # Configuration file

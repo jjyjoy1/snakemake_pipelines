@@ -1,0 +1,175 @@
+# Advanced Configuration file for proteomics data analysis workflow
+
+# Sample information
+samples:
+  - "sample1"
+  - "sample2"
+  - "sample3"
+  - "sample4"
+  - "sample5"
+  - "sample6"
+
+# Experimental conditions
+conditions:
+  - "control"
+  - "treatment"
+
+# Sample metadata file path (should contain sample-to-condition mapping)
+sample_metadata: "metadata/sample_metadata.tsv"
+
+# Control and treatment groups for differential expression analysis
+control_condition: "control"
+treatment_condition: "treatment"
+
+# Organism information
+organism: "human"  # Options: human, mouse, rat, zebrafish, etc.
+species_tax_id: "9606"  # NCBI Taxonomy ID
+
+# Path to protein database in FASTA format
+protein_database: "databases/proteome.fasta"
+
+# Database search parameters
+precursor_mass_tolerance: 10 # ppm
+fragment_mass_tolerance: 0.5 # Da
+enzyme: "trypsin"
+missed_cleavages: 2
+
+# FDR control thresholds
+peptide_fdr: 0.01
+protein_fdr: 0.01
+
+# Feature mapping parameters
+rt_tolerance: 30 # seconds
+mz_tolerance: 10 # ppm
+
+# PTM analysis
+ptm_list:
+  - "Phosphorylation (S,T,Y)"
+  - "Acetylation (K)"
+  - "Methylation (K,R)"
+  - "Ubiquitination (K)"
+
+# Statistical analysis
+significance_threshold: 0.05
+fc_threshold: 1.0  # log2 fold change threshold
+
+# Pathway analysis
+pathway_database: "databases/pathways.gmt"
+enrichment_method: "gsea"
+
+# Enrichment analysis parameters
+enrichment:
+  # Gene Ontology enrichment
+  go:
+    enabled: true
+    categories:
+      - "BP"  # Biological Process
+      - "MF"  # Molecular Function
+      - "CC"  # Cellular Component
+    max_terms: 2000  # Maximum number of terms to retrieve
+
+  # Pathway analysis
+  pathway:
+    enabled: true
+    databases:
+      - "KEGG"      # KEGG pathways
+      - "REACTOME"  # Reactome pathways
+      - "WP"        # WikiPathways
+    max_terms: 500  # Maximum number of terms to retrieve
+    
+  # Gene Set Enrichment Analysis (GSEA)
+  gsea:
+    enabled: true
+    permutations: 1000
+    min_size: 5     # Minimum gene set size
+    max_size: 500   # Maximum gene set size
+    
+  # Visualization parameters
+  visualization:
+    top_terms: 20            # Number of top terms to visualize
+    network_similarity: 0.3  # Minimum Jaccard similarity for networks
+    colors:
+      upregulated: "#d73027"  # Red for upregulated
+      downregulated: "#4575b4"  # Blue for downregulated
+
+# Protein-Protein Interaction Network Analysis
+ppi:
+  confidence_score: 0.7  # Minimum confidence score for STRING interactions (0-1)
+  log2fc_cutoff: 1.0     # Log2 fold change cutoff for significant proteins
+  pval_cutoff: 0.05      # P-value cutoff for significant proteins
+  include_indirect: true # Include indirect interactions
+  biogrid_api_key: ""    # API key for BioGRID (optional)
+  community_detection:
+    enabled: true
+    resolution: 1.0      # Resolution parameter for community detection
+
+# Protein Structure and Domain Analysis
+structure:
+  log2fc_cutoff: 1.0     # Log2 fold change cutoff for significant proteins
+  pval_cutoff: 0.05      # P-value cutoff for significant proteins
+  max_proteins: 10       # Maximum number of proteins to analyze (to avoid API limits)
+  use_alphafold: true    # Whether to use AlphaFold predicted structures
+  analyze_ptms: true     # Whether to analyze PTMs in relation to structure
+  domain_databases:
+    - "UniProt"
+    - "InterPro"
+    - "Pfam"
+
+# Biomarker Discovery and Machine Learning
+biomarkers:
+  sample_col: "sample_id"  # Column name for sample IDs in metadata
+  group_col: "condition"   # Column name for experimental conditions in metadata
+  feature_selection: "rfe" # Feature selection method (options: rfe, rfecv, anova)
+  n_features: 20           # Number of features (biomarkers) to select
+  test_size: 0.2           # Proportion of data to use for testing
+  models:                  # Models to train
+    - "rf"   # Random Forest
+    - "svm"  # Support Vector Machine
+    - "lr"   # Logistic Regression
+    - "gb"   # Gradient Boosting
+    - "xgb"  # XGBoost
+  cross_validation: 5      # Number of cross-validation folds
+  use_smote: true          # Whether to use SMOTE for imbalanced data
+
+# Advanced Visualization
+visualization:
+  color_palette: "viridis" # Color palette for visualizations
+  interactive: true        # Whether to create interactive visualizations
+  format: "png"            # Default format for static visualizations (png, svg, pdf)
+  resolution: 300          # DPI for static visualizations
+  # Configuration for different visualization types
+  viz_config:
+    diff_expr:             # Differential expression data visualizations
+      - "volcano"          # Volcano plot
+      - "heatmap"          # Heatmap
+      - "pca"              # PCA plot
+    enrichment:            # Enrichment analysis visualizations
+      - "network"          # Network plot
+      - "heatmap"          # Heatmap
+    quantification:        # Protein quantification visualizations
+      - "heatmap"          # Heatmap
+      - "pca"              # PCA plot
+    ptm:                   # PTM data visualizations
+      - "heatmap"          # Heatmap
+    ppi:                   # PPI network visualizations
+      - "network"          # Network plot
+
+# Report generation
+report:
+  title: "Comprehensive Proteomics Analysis Report"
+  author: "Proteomics Analysis Pipeline"
+  include_code: true       # Whether to include code snippets in report
+  include_parameters: true # Whether to include parameters in report
+  format: "html"           # Report format (html, pdf)
+  sections:                # Sections to include in report
+    - "qc"                 # Quality control
+    - "identification"     # Protein identification
+    - "quantification"     # Protein quantification
+    - "differential"       # Differential expression
+    - "ptm"                # PTM analysis
+    - "enrichment"         # Enrichment analysis
+    - "ppi"                # PPI network analysis
+    - "structure"          # Protein structure analysis
+    - "biomarkers"         # Biomarker discovery
+    - "visualization"      # Visualizations
+

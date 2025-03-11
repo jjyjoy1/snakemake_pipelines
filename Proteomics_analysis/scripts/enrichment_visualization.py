@@ -8,7 +8,7 @@ This module provides enhanced visualization capabilities for enrichment analysis
 - Bubble plots for enrichment results
 - Interactive visualizations using plotly
 
-Author: Claude
+Author: Jiyang Jiang
 Date: March 11, 2025
 """
 
