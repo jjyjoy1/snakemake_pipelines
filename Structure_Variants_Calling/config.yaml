@@ -1,0 +1,60 @@
+# Configuration file for Structural Variant Calling Pipeline
+
+# Working directory
+workdir: "/path/to/workdir"
+
+# Threads to use for multithreaded tools
+threads: 16
+
+# Reference genome information
+reference:
+  # Path to reference genome FASTA
+  genome: "/path/to/reference/GRCh38.fa"
+  # Genome build (used for annotation)
+  build: "GRCh38"
+
+# Path to AnnotSV installation directory
+annotsv_dir: "/path/to/AnnotSV"
+
+# Sample information
+samples:
+  sample1:
+    fastq_1: "/path/to/sample1_R1.fastq.gz"
+    fastq_2: "/path/to/sample1_R2.fastq.gz"
+  sample2:
+    fastq_1: "/path/to/sample2_R1.fastq.gz"
+    fastq_2: "/path/to/sample2_R2.fastq.gz"
+  # Add more samples as needed
+
+# SV callers to use (uncomment to disable specific callers)
+sv_callers:
+  delly: true
+  manta: true
+  smoove: true
+  #gridss: false  # Disabled by default due to complexity
+
+# SV filtering parameters
+sv_filter:
+  min_size: 50  # Minimum SV size in bp
+  max_size: null  # Maximum SV size in bp (null for no limit)
+  min_support: 3  # Minimum number of supporting reads
+  max_frequency: 0.01  # Maximum frequency in population databases
+
+# SV merging parameters
+sv_merge:
+  max_distance: 1000  # Maximum distance between breakpoints
+  min_reciprocal_overlap: 0.8  # Minimum reciprocal overlap
+  min_callers: 2  # Minimum number of callers supporting a variant
+
+# Annotation parameters
+annotation:
+  gene_databases:
+    - "refGene"
+    - "ensGene"
+  population_databases:
+    - "gnomAD"
+    - "1000g"
+  functional_databases:
+    - "OMIM"
+    - "ClinVar"
+    - "DECIPHER"
