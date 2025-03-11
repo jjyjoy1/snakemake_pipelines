@@ -1,0 +1,55 @@
+# Configuration file for proteomics data analysis workflow
+
+# Sample information
+samples:
+  - "sample1"
+  - "sample2"
+  - "sample3"
+  - "sample4"
+  - "sample5"
+  - "sample6"
+
+# Experimental conditions
+conditions:
+  - "control"
+  - "treatment"
+
+# Sample metadata file path (should contain sample-to-condition mapping)
+sample_metadata: "metadata/sample_metadata.tsv"
+
+# Control and treatment groups for differential expression analysis
+control_condition: "control"
+treatment_condition: "treatment"
+
+# Path to protein database in FASTA format
+protein_database: "databases/proteome.fasta"
+
+# Database search parameters
+precursor_mass_tolerance: 10 # ppm
+fragment_mass_tolerance: 0.5 # Da
+enzyme: "trypsin"
+missed_cleavages: 2
+
+# FDR control thresholds
+peptide_fdr: 0.01
+protein_fdr: 0.01
+
+# Feature mapping parameters
+rt_tolerance: 30 # seconds
+mz_tolerance: 10 # ppm
+
+# PTM analysis
+ptm_list:
+  - "Phosphorylation (S,T,Y)"
+  - "Acetylation (K)"
+  - "Methylation (K,R)"
+  - "Ubiquitination (K)"
+
+# Statistical analysis
+significance_threshold: 0.05
+
+# Pathway analysis
+pathway_database: "databases/pathways.gmt"
+organism: "human"
+enrichment_method: "gsea"
+
