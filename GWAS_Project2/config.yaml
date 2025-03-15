@@ -1,0 +1,78 @@
+# Configuration file for GWAS rare variant discovery pipeline
+# File: config/config.yaml
+
+# Output directory structure
+results_dir: "results"
+
+# Reference genome and known variant sites
+reference:
+  genome: "resources/references/Homo_sapiens_assembly38.fasta"
+  known_sites: "resources/known_sites/dbsnp_146.hg38.vcf.gz"
+
+# Input samples - replace with your sample information
+# Format:
+# sample_id:
+#   r1: path/to/sample_R1.fastq.gz
+#   r2: path/to/sample_R2.fastq.gz
+samples:
+  sample1:
+    r1: "data/sample1_R1.fastq.gz"
+    r2: "data/sample1_R2.fastq.gz"
+  sample2:
+    r1: "data/sample2_R1.fastq.gz"
+    r2: "data/sample2_R2.fastq.gz"
+  # Add remaining samples here...
+
+# File containing phenotype information
+# Should have columns:
+# - sample_id: matching sample IDs in the samples list
+# - is_case: 1 for cases, 0 for controls
+phenotype_file: "data/phenotypes.tsv"
+
+# Chromosomes to analyze
+chromosomes:
+  - "chr1"
+  - "chr2"
+  - "chr3"
+  - "chr4"
+  - "chr5"
+  - "chr6"
+  - "chr7"
+  - "chr8"
+  - "chr9"
+  - "chr10"
+  - "chr11"
+  - "chr12"
+  - "chr13"
+  - "chr14"
+  - "chr15"
+  - "chr16"
+  - "chr17"
+  - "chr18"
+  - "chr19"
+  - "chr20"
+  - "chr21"
+  - "chr22"
+  - "chrX"
+  - "chrY"
+
+# VEP configuration
+vep_config: "config/vep_config.json"
+
+# Optional gene list for focused analysis
+# Leave empty to analyze all genes
+gene_list: ""  # "data/target_genes.txt"
+
+# Parameters for rare variant analysis
+maf_threshold: 0.01  # Maximum minor allele frequency for rare variants
+burden_test: "skat"  # Options: skat, burden, skat-o
+
+# Parameters for LD pruning in PLINK
+ld_window_size: 50
+ld_step_size: 5
+ld_r2_threshold: 0.2
+
+# Number of principal components to calculate
+num_pcs: 10
+
+

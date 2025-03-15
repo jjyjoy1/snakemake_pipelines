@@ -1,0 +1,57 @@
+# Configuration file for methylation sequencing analysis pipeline
+
+# Output directory
+output_dir: "methylation_analysis"
+
+# Reference genome information
+genome_dir: "/path/to/reference/genome"
+genome_fasta: "genome.fa"
+genome_sizes: "genome.sizes"  # chromosome sizes file for bigWig conversion
+
+# Sample information - update with your sample paths
+samples:
+  sample1:
+    r1: "/path/to/sample1_R1.fastq.gz"
+    r2: "/path/to/sample1_R2.fastq.gz"
+    group: "control"
+  sample2:
+    r1: "/path/to/sample2_R1.fastq.gz"
+    r2: "/path/to/sample2_R2.fastq.gz"
+    group: "control"
+  sample3:
+    r1: "/path/to/sample3_R1.fastq.gz"
+    r2: "/path/to/sample3_R2.fastq.gz"
+    group: "treatment"
+  sample4:
+    r1: "/path/to/sample4_R1.fastq.gz"
+    r2: "/path/to/sample4_R2.fastq.gz"
+    group: "treatment"
+
+# Define sample groups for differential methylation analysis
+sample_groups:
+  control: ["sample1", "sample2"]
+  treatment: ["sample3", "sample4"]
+
+# Parameters for differential methylation analysis
+dmr_parameters:
+  min_coverage: 10
+  min_diff: 25  # Minimum % methylation difference
+  qvalue: 0.01  # Significance threshold
+
+# Number of CPU threads to use for each step
+threads:
+  prepare_genome: 8
+  fastqc: 4
+  trim: 8
+  bismark_align: 8
+  methylation_extraction: 8
+
+# Trimmomatic options
+trim_options: "ILLUMINACLIP:adapters/TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36"
+
+# Bismark alignment options
+bismark_align_options: "--bowtie2 --non_directional"
+
+# Methylation extraction options
+meth_extract_options: "--no_overlap --comprehensive --merge_non_CpG"
+

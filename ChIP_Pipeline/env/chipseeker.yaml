@@ -1,0 +1,64 @@
+# envs/chipseeker.yaml
+name: chipseeker
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - r-base=4.1
+  - bioconductor-chipseeker
+  - bioconductor-txdb.hsapiens.ucsc.hg38.knowngene
+  - bioconductor-txdb.hsapiens.ucsc.hg19.knowngene
+  - bioconductor-txdb.mmusculus.ucsc.mm10.knowngene
+  - bioconductor-txdb.mmusculus.ucsc.mm9.knowngene
+  - bioconductor-org.hs.eg.db
+  - bioconductor-org.mm.eg.db
+  - bioconductor-clusterprofiler
+  - bioconductor-dose
+  - bioconductor-reactomepa
+  - r-ggplot2
+  - r-dplyr
+  - r-readr
+
+---
+
+# envs/great.yaml
+name: great
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - r-base=4.1
+  - bioconductor-rgreat
+  - r-jsonlite
+  - r-httr
+  - bioconductor-genomicranges
+  - bioconductor-rtracklayer
+  - r-ggplot2
+  - r-gridextra
+  - r-dplyr
+
+---
+
+# envs/functional.yaml
+name: functional
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - r-base=4.1
+  - bioconductor-clusterprofiler
+  - bioconductor-reactomepa
+  - bioconductor-dose
+  - bioconductor-enrichplot
+  - bioconductor-pathview
+  - bioconductor-org.hs.eg.db
+  - bioconductor-org.mm.eg.db
+  - r-ggplot2
+  - r-dplyr
+  - r-tidyr
+  - bioconductor-genomicranges
+  - bioconductor-rtracklayer
+

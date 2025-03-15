@@ -1,0 +1,189 @@
+# Workflow for ChIP-seq and Gene Expression Integration Analysis
+
+This document provides a step-by-step workflow for integrating ChIP-seq peak data with gene expression data to identify relationships between binding events and gene expression.
+
+## Prerequisites
+
+1. Processed ChIP-seq data with peak calls
+2. Gene expression matrix
+3. Required software and packages:
+   - R (version 4.0+)
+   - Python (version 3.6+)
+   - Required R packages: see R script
+   - Required Python packages: see Python script
+
+## Workflow Overview
+
+The workflow consists of the following main steps:
+
+1. Process ChIP-seq peaks and associate them with genes
+2. Process gene expression data
+3. Integrate ChIP-seq and gene expression data
+4. Perform correlation analysis
+5. Build predictive models
+6. Functional analysis of correlated genes
+7. Visualization and report generation
+
+## Step 1: Setup Project
+
+```bash
+# Create project directory structure
+mkdir -p chipseq_expression_integration/{data,results,scripts}
+cd chipseq_expression_integration
+
+# Create subdirectories for results
+mkdir -p results/{peaks,annotation,expression,integration,models,functional,plots,reports}
+```
+
+## Step 2: Prepare Input Data
+
+Place your data files in the appropriate directories:
+
+```bash
+# Copy peak files to data directory
+cp /path/to/peak/files/*.narrowPeak data/
+
+# Copy gene expression matrix
+cp /path/to/expression/matrix.csv data/
+
+# Copy gene annotation file (if available)
+cp /path/to/gene/annotation.bed data/
+```
+
+## Step 3: Run ChIP-seq Peak Annotation
+
+Use the ChIPseeker annotation script to annotate peaks with genomic features:
+
+```bash
+# Run annotation for each peak file
+for peak_file in data/*.narrowPeak; do
+  sample_name=$(basename $peak_file .narrowPeak)
+  Rscript scripts/chipseeker_annotation.R $peak_file results/annotation human hg38
+done
+```
+
+## Step 4: Run Integration Analysis
+
+For the R implementation:
+
+```bash
+# Run the R integration script
+Rscript scripts/chip_expression_integration.R \
+  --peak-dir results/peaks \
+  --expression-file data/gene_expression_matrix.csv \
+  --output-dir results/integration \
+  --organism human
+```
+
+For the Python implementation:
+
+```bash
+# Run the Python integration script
+python scripts/chip_expression_integration.py \
+  --peak-dir results/peaks \
+  --expression-file data/gene_expression_matrix.csv \
+  --annotation-file data/gene_annotation.bed \
+  --output-dir results/integration \
+  --organism human
+```
+
+## Step 5: Generate Visualizations
+
+The integration scripts generate basic visualizations. For additional custom visualizations:
+
+```bash
+# Generate additional visualizations
+Rscript scripts/generate_visualizations.R \
+  --integration-dir results/integration \
+  --output-dir results/plots
+```
+
+## Step 6: Generate Report
+
+```bash
+# Generate comprehensive report
+Rscript scripts/generate_report.R \
+  --integration-dir results/integration \
+  --functional-dir results/functional \
+  --output-file results/reports/integration_report.html
+```
+
+## Tips for Successful Integration
+
+1. **Quality Control**: Ensure both ChIP-seq and gene expression data have undergone thorough quality control.
+2. **Peak Selection**: Consider different approaches for associating peaks with genes (promoter regions, enhancers, etc.).
+3. **Distance Considerations**: The impact of ChIP-seq peaks on gene expression often depends on distance from TSS.
+4. **Multiple Testing Correction**: Always apply appropriate multiple testing correction for correlation analysis.
+5. **Biological Context**: Interpret results in the context of the biological system and ChIP target.
+
+## Example Commands for Specific Analyses
+
+### Promoter-Focused Analysis
+
+```bash
+# Run integration with focus on promoter regions only
+Rscript scripts/chip_expression_integration.R \
+  --peak-dir results/peaks \
+  --expression-file data/gene_expression_matrix.csv \
+  --output-dir results/integration \
+  --organism human \
+  --promoter-only \
+  --upstream 2000 \
+  --downstream 500
+```
+
+### Enhancer-Focused Analysis
+
+```bash
+# Run integration with enhancer annotations
+Rscript scripts/chip_expression_integration.R \
+  --peak-dir results/peaks \
+  --expression-file data/gene_expression_matrix.csv \
+  --output-dir results/integration \
+  --organism human \
+  --enhancer-file data/enhancer_annotations.bed
+```
+
+### Time-Course Integration
+
+For time-course experiments:
+
+```bash
+# Run time-course specific integration
+Rscript scripts/chip_expression_timecourse.R \
+  --peak-dir results/peaks \
+  --expression-file data/timecourse_expression.csv \
+  --output-dir results/integration \
+  --timepoints "0h,2h,6h,24h" \
+  --organism human
+```
+
+## Data Processing Functions
+
+Below are key functions used in the integration analysis:
+
+### Associating Peaks with Genes
+
+```R
+# Function to create a peak-gene matrix
+create_peak_gene_matrix <- function(annotated_peaks, 
+                                   promoter_only = TRUE, 
+                                   upstream = 2000, 
+                                   downstream = 500) {
+  # Function implementation in integration scripts
+}
+```
+
+### Building Predictive Models
+
+```R
+# Function to build predictive models
+build_predictive_model <- function(integrated_data, expr_col, peak_cols, 
+                                 method = "glmnet", alpha = 0.5, 
+                                 train_prop = 0.7) {
+  # Function implementation in integration scripts
+}
+```
+
+For further details and customization, please refer to the documentation and commented code in the individual scripts.
+

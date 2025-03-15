@@ -1,0 +1,26 @@
+# config.yaml - Configuration for ChIP-seq analysis pipeline
+
+# Input files
+manifest_file: "data/manifest.tsv"
+
+# Reference genome
+reference_genome: "path/to/genome/index"
+genome_size: "mm"  # Options: hs, mm, ce, dm
+effective_genome_size: 2150570000  # For mouse, adjust for other organisms
+
+# Adapter trimming
+adapter_sequence: "AGATCGGAAGAGC"
+trim_quality_threshold: 20
+
+# Mapping and filtering parameters
+mapping_quality: 30
+blacklist_regions: "path/to/blacklist.bed"
+
+# Peak calling parameters
+peak_qvalue: 0.05
+
+# BigWig parameters
+bigwig_bin_size: 10
+
+# Differential binding parameters
+diff_binding_fdr: 0.05
